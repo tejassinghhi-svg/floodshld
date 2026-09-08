@@ -2,247 +2,45 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width =device-width, initial-scale=1.0">
-<title>FloodShield — Day 2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FloodShield — Day 3 Flood Simulator</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#07111f;--panel:#0d1b2d;--line:#21334b;--text:#eaf2ff;--muted:#91a5bd;--cyan:#31c7ff;--green:#2bd576;--amber:#ffc857;--red:#ff4d5d;--critical:#ff1735}
-*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#06101d,#0a1728);color:var(--text)}
-header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:15px;position:sticky;top:0;background:rgba(7,17,31,.94);backdrop-filter:blur(12px);z-index:1000}
-.brand{font-size:20px;font-weight:800}.brand span{color:var(--cyan)}
-.status{display:flex;align-items:center;gap:8px;font-size:13px;color:#b8c7d9}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
-.wrap{max-width:1450px;margin:auto;padding:18px}
-.grid{display:grid;grid-template-columns:1.45fr .8fr;gap:18px}
-.card{background:rgba(13,27,45,.9);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 45px rgba(0,0,0,.22)}
-.mapcard{overflow:hidden}.maptop{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
-.search{display:flex;gap:8px;flex:1}.search input{width:100%;background:#081525;border:1px solid #2a405d;color:white;border-radius:10px;padding:11px 12px;outline:none}.btn{border:0;border-radius:10px;padding:10px 13px;font-weight:700;cursor:pointer;background:#16304b;color:#eaf2ff}.btn:hover{filter:brightness(1.15)}.primary{background:var(--cyan);color:#001522}.danger{background:#7e1723}.green{background:#155d3a}
-#map{height:610px}.side{display:grid;gap:18px}.panel{padding:18px}.eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}.big{font-size:43px;font-weight:900;margin:5px 0}.riskSafe{color:var(--green)}.riskWatch{color:var(--amber)}.riskHigh,.riskCritical{color:var(--red)}
-.bar{height:12px;background:#14263b;border-radius:20px;overflow:hidden;margin:12px 0}.fill{height:100%;width:0;border-radius:20px;transition:.5s}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#091729;border:1px solid #1e334d;border-radius:12px;padding:12px}.metric b{font-size:20px;display:block;margin-top:3px}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.small{font-size:12px;color:var(--muted);line-height:1.5}
-#chart{width:100%;height:150px;background:#091729;border:1px solid #1e334d;border-radius:12px}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#b5c4d6}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
-.alert{position:fixed;inset:0;background:rgba(100,0,10,.72);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;z-index:5000}.alert.show{display:flex}.alertbox{width:min(600px,92vw);background:#16090d;border:2px solid var(--critical);border-radius:22px;padding:30px;text-align:center;box-shadow:0 0 80px rgba(255,23,53,.45);animation:pulse 1s infinite alternate}
-@keyframes pulse{from{box-shadow:0 0 35px rgba(255,23,53,.25)}to{box-shadow:0 0 85px rgba(255,23,53,.65)}}.alerticon{font-size:64px}.alertbox h1{margin:8px 0;color:#ff5261;font-size:34px}.alertbox p{color:#ffd9dc}.alert-actions{display:flex;justify-content:center;gap:10px;margin-top:20px}
-.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#16283d;color:#b8cbe0}.demo{color:#ffd47c;background:#3b2b10}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0c1a2b;color:#eef6ff}.leaflet-control{border-radius:8px!important}
-@media(max-width:900px){.grid{grid-template-columns:1fr}#map{height:470px}}
-</style>
-</head>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#08111f;color:#e8f0f7}header{padding:18px 24px;background:#0d1b2d;border-bottom:1px solid #20334a;display:flex;justify-content:space-between;align-items:center}h1{margin:0;font-size:24px}small{color:#91a4b8}.app{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 69px)}aside{padding:18px;background:#0b1727;border-right:1px solid #20334a;overflow:auto}.panel{background:#101f32;border:1px solid #213750;border-radius:14px;padding:16px;margin-bottom:14px}.panel h2{font-size:15px;margin:0 0 14px}.metric{display:flex;justify-content:space-between;margin:10px 0}.metric b{font-size:18px}.slider{width:100%;accent-color:#28b8ff}.row{display:flex;gap:10px}.row>div{flex:1}.value{font-size:25px;font-weight:800}.risk{padding:14px;border-radius:12px;text-align:center;background:#183047;margin-top:10px}.risk strong{display:block;font-size:30px}.btn{width:100%;padding:12px;border:0;border-radius:9px;background:#1e9bd7;color:white;font-weight:700;cursor:pointer;margin-top:8px}.btn.secondary{background:#24374c}.note{font-size:11px;line-height:1.5;color:#8ea3b8}#map{height:100%;min-height:650px}.leaflet-popup-content{color:#111}.legend{background:#0c1929;color:#fff;padding:9px 12px;border-radius:8px;border:1px solid #31475d;line-height:20px}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}.response{line-height:1.5;font-size:13px}.critical{border:1px solid #e74c3c;box-shadow:0 0 20px #e74c3c33}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:9999}.modalbox{width:min(520px,90%);background:#160f13;border:2px solid #e74c3c;border-radius:18px;padding:26px;text-align:center}.modalbox h2{font-size:30px;margin:5px}.siren{font-size:42px}.search{display:flex;gap:7px;margin-bottom:12px}.search input{flex:1;padding:11px;border-radius:8px;border:1px solid #31475d;background:#0b1727;color:#fff}.search button{padding:0 13px;border:0;border-radius:8px;background:#2a9ed0;color:#fff}
+@media(max-width:850px){.app{grid-template-columns:1fr}aside{border-right:0}.map{order:-1}#map{min-height:500px}}
+</style></head>
 <body>
-<header>
-  <div class="brand">🌊 FloodShield <span>DAY 2</span></div>
-  <div class="status"><span class="dot"></span> Monitoring engine online <span class="badge demo">DEMO DATA</span></div>
-</header>
-
-<div class="wrap">
-  <div class="grid">
-    <section class="card mapcard">
-      <div class="maptop">
-        <div class="search">
-          <input id="search" placeholder="Search any Delhi locality, road, sector or landmark…">
-          <button class="btn primary" onclick="searchPlace()">Search</button>
-        </div>
-        <button class="btn" onclick="resetMap()">Delhi</button>
-      </div>
-      <div id="map"></div>
-      <div style="padding:13px 16px" class="legend">
-        <span><i style="background:#2bd576"></i>Safe</span>
-        <span><i style="background:#ffc857"></i>Watch</span>
-        <span><i style="background:#ff6b4a"></i>High Risk</span>
-        <span><i style="background:#ff1735"></i>Critical</span>
-      </div>
-    </section>
-
-    <aside class="side">
-      <div class="card panel">
-        <div class="eyebrow">Selected location</div>
-        <h2 id="place" style="margin:5px 0 0">Delhi — monitoring overview</h2>
-        <div id="riskText" class="big riskSafe">SAFE</div>
-        <div class="eyebrow">Flood risk score</div>
-        <div class="bar"><div id="riskFill" class="fill" style="background:#2bd576"></div></div>
-        <div style="display:flex;justify-content:space-between"><b id="score">18 / 100</b><span class="small">Alert threshold: 75</span></div>
-        <div class="metrics" style="margin-top:14px">
-          <div class="metric"><span class="small">Rainfall</span><b id="rain">18 mm/hr</b></div>
-          <div class="metric"><span class="small">Drainage stress</span><b id="drain">22%</b></div>
-          <div class="metric"><span class="small">Elevation factor</span><b id="elev">14%</b></div>
-          <div class="metric"><span class="small">Historical factor</span><b id="hist">18%</b></div>
-        </div>
-        <div class="controls">
-          <button class="btn green" onclick="enableSound()">🔊 Enable Alert Sound</button>
-          <button class="btn primary" onclick="startSimulation()">▶ Flood Simulation</button>
-          <button class="btn" onclick="stopSimulation()">■ Stop</button>
-        </div>
-        <p class="small" style="margin-bottom:0">The simulation ramps rainfall and risk upward. When the risk crosses 75, the warning popup and emergency siren activate automatically.</p>
-      </div>
-
-      <div class="card panel">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><div class="eyebrow">Risk history</div><h3 style="margin:5px 0 12px">Last monitoring cycle</h3></div>
-          <span class="badge" id="cycle">Idle</span>
-        </div>
-        <canvas id="chart" width="650" height="180"></canvas>
-      </div>
-
-      <div class="card panel">
-        <div class="eyebrow">Recommended action</div>
-        <h3 id="action" style="margin:7px 0">No immediate action</h3>
-        <p id="actionText" class="small">Continue normal monitoring. The dashboard is currently using illustrative prototype values.</p>
-      </div>
-    </aside>
-  </div>
-</div>
-
-<div class="alert" id="alert">
-  <div class="alertbox">
-    <div class="alerticon">⚠️</div>
-    <div class="eyebrow" style="color:#ff9aa4">FLOODSHIELD EMERGENCY SYSTEM</div>
-    <h1>CRITICAL FLOOD WARNING</h1>
-    <p id="alertMsg">Flood risk has crossed the critical threshold.</p>
-    <p><b>Risk score: <span id="alertScore">--</span>/100</b></p>
-    <div class="alert-actions">
-      <button class="btn danger" onclick="muteSiren()">🔇 Mute Siren</button>
-      <button class="btn primary" onclick="closeAlert()">Acknowledge</button>
-    </div>
-  </div>
-</div>
-
+<header><div><h1>🌧️ FloodShield</h1><small>Day 3 — Delhi Urban Flood Risk & What‑If Simulator</small></div><small>Prototype • Illustrative model</small></header>
+<div class="app"><aside>
+<div class="panel"><h2>📍 Search Delhi</h2><div class="search"><input id="search" placeholder="Locality, road, landmark..."><button onclick="searchPlace()">Go</button></div><button class="btn secondary" onclick="resetMap()">Reset to Delhi</button></div>
+<div class="panel"><h2>🎛️ What‑If Flood Simulator</h2>
+<label>Rainfall intensity <b><span id="rainVal">70</span> mm/hr</b></label><input id="rain" class="slider" type="range" min="0" max="150" value="70" oninput="update()">
+<label>Rainfall duration <b><span id="durVal">60</span> min</b></label><input id="duration" class="slider" type="range" min="10" max="180" value="60" oninput="update()">
+<label>Drainage efficiency <b><span id="drainVal">55</span>%</b></label><input id="drain" class="slider" type="range" min="20" max="100" value="55" oninput="update()">
+<div class="risk" id="riskBox"><small>MODELED FLOOD RISK</small><strong id="score">58/100</strong><span id="level">HIGH RISK</span></div>
+<button class="btn" onclick="simulate()">▶ Run Flood Simulation</button><button class="btn secondary" onclick="resetScenario()">↺ Reset Scenario</button></div>
+<div class="panel"><h2>🧠 Transparent Risk Engine</h2><div class="metric"><span>Rainfall & duration</span><b>35%</b></div><div class="metric"><span>Drainage vulnerability</span><b>25%</b></div><div class="metric"><span>Elevation vulnerability</span><b>20%</b></div><div class="metric"><span>Historical tendency</span><b>20%</b></div><p class="note">Risk = 35% rain/duration + 25% drainage vulnerability + 20% elevation vulnerability + 20% historical tendency. This prototype uses illustrative spatial factors, not live measurements.</p></div>
+<div class="panel"><h2>🚨 Response Recommendation</h2><div id="response" class="response">Monitor low-lying roads and drainage points. Prepare for localized waterlogging.</div></div>
+<div class="panel"><p class="note">SIH prototype: values and heatmap are simulated for demonstration. Do not use this interface for real emergency decisions.</p></div>
+</aside><main><div id="map"></div></main></div>
+<div class="modal" id="alert"><div class="modalbox"><div class="siren">🚨</div><h2>CRITICAL FLOOD WARNING</h2><p id="alertText">Modeled flood risk has crossed the critical threshold.</p><button class="btn" onclick="acknowledge()">Acknowledge Alert</button><button class="btn secondary" onclick="muteSiren()">Mute Siren</button></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const map=L.map('map').setView([28.6139,77.2090],11);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(map);
-
-const zones=[
- {name:'Central Delhi',lat:28.63,lng:77.22,risk:72,rain:54,drain:68,elev:43,hist:62},
- {name:'North Delhi',lat:28.70,lng:77.16,risk:48,rain:39,drain:47,elev:35,hist:45},
- {name:'East Delhi',lat:28.63,lng:77.30,risk:81,rain:66,drain:79,elev:58,hist:70},
- {name:'South-West Delhi',lat:28.57,lng:77.07,risk:31,rain:27,drain:31,elev:21,hist:28}
-];
-const circles=[];
-zones.forEach(z=>{
- const c=L.circle([z.lat,z.lng],{radius:3600,color:riskColor(z.risk),fillColor:riskColor(z.risk),fillOpacity:.35,weight:2})
- .addTo(map).bindPopup(`<b>${z.name}</b><br>Prototype risk: ${z.risk}/100<br>Rainfall: ${z.rain} mm/hr`);
- circles.push(c);
-});
-
-let current={...zones[0],name:'Delhi — monitoring overview'};
-let history=[18,21,19,24,27,25,29,31,28,32,30,34];
-let simTimer=null, simStep=0, alertTriggered=false;
-let audioCtx=null, sirenNodes=[], sirenTimer=null, soundEnabled=false;
-
-function riskColor(r){return r<35?'#2bd576':r<60?'#ffc857':r<75?'#ff6b4a':'#ff1735'}
-function setUI(){
- const r=Math.round(current.risk);
- const level=r>=75?'CRITICAL':r>=60?'HIGH RISK':r>=35?'WATCH':'SAFE';
- document.getElementById('place').textContent=current.name;
- document.getElementById('riskText').textContent=level;
- document.getElementById('riskText').className='big '+(r>=75?'riskCritical':r>=60?'riskHigh':r>=35?'riskWatch':'riskSafe');
- document.getElementById('score').textContent=r+' / 100';
- document.getElementById('riskFill').style.width=r+'%';
- document.getElementById('riskFill').style.background=riskColor(r);
- document.getElementById('rain').textContent=Math.round(current.rain)+' mm/hr';
- document.getElementById('drain').textContent=Math.round(current.drain)+'%';
- document.getElementById('elev').textContent=Math.round(current.elev)+'%';
- document.getElementById('hist').textContent=Math.round(current.hist)+'%';
- if(r>=75){document.getElementById('action').textContent='Move to safer / elevated areas';document.getElementById('actionText').textContent='Avoid underpasses and low-lying roads. Follow official emergency instructions and do not enter moving floodwater.'}
- else if(r>=60){document.getElementById('action').textContent='Prepare for possible flooding';document.getElementById('actionText').textContent='Monitor rainfall and local advisories. Avoid unnecessary travel through known waterlogging points.'}
- else if(r>=35){document.getElementById('action').textContent='Stay alert';document.getElementById('actionText').textContent='Keep monitoring conditions and rainfall trends.'}
- else {document.getElementById('action').textContent='No immediate action';document.getElementById('actionText').textContent='Continue normal monitoring. Values shown are illustrative prototype data.'}
- drawChart();
-}
-function drawChart(){
- const c=document.getElementById('chart'),x=c.getContext('2d'),w=c.width,h=c.height;
- x.clearRect(0,0,w,h); x.strokeStyle='#233b55'; x.lineWidth=1;
- for(let i=1;i<5;i++){let y=i*h/5;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}
- if(history.length<2)return;
- x.beginPath();
- history.forEach((v,i)=>{let px=i*(w/(history.length-1)),py=h-12-(v/100)*(h-24);i?x.lineTo(px,py):x.moveTo(px,py)});
- x.strokeStyle='#31c7ff';x.lineWidth=3;x.stroke();
-}
-function pushHistory(v){history.push(Math.max(0,Math.min(100,v)));if(history.length>24)history.shift();drawChart()}
-
-async function searchPlace(){
- const q=document.getElementById('search').value.trim();if(!q)return;
- try{
-  const url='https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&bounded=1&viewbox=76.83,28.88,77.35,28.40&q='+encodeURIComponent(q+' Delhi');
-  const res=await fetch(url,{headers:{'Accept-Language':'en'}});
-  const data=await res.json();
-  if(!data.length){alert('Location not found. Try a Delhi locality, road, sector or landmark.');return}
-  const p=data[0],lat=+p.lat,lng=+p.lon;
-  map.setView([lat,lng],14);
-  const hash=Math.abs([...q].reduce((a,ch)=>((a<<5)-a)+ch.charCodeAt(0),0));
-  current={name:p.display_name.split(',').slice(0,2).join(','),lat,lng,risk:25+(hash%55),rain:20+(hash%55),drain:20+(hash%65),elev:10+(hash%55),hist:15+(hash%60)};
-  L.marker([lat,lng]).addTo(map).bindPopup('<b>'+current.name+'</b><br>Prototype risk profile').openPopup();
-  setUI();
- }catch(e){alert('Search needs an internet connection because it uses OpenStreetMap geocoding.')}
-}
-document.getElementById('search').addEventListener('keydown',e=>{if(e.key==='Enter')searchPlace()});
-
-function resetMap(){map.setView([28.6139,77.2090],11);current={...zones[0],name:'Delhi — monitoring overview'};setUI()}
-
-async function enableSound(){
- try{
-  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  await audioCtx.resume();soundEnabled=true;
-  const b=event?.currentTarget;if(b)b.textContent='🔊 Alert Sound Enabled';
-  playTestChime();
- }catch(e){alert('Your browser blocked audio. Click this button again after interacting with the page.')}
-}
-function playTestChime(){
- if(!audioCtx)return;
- const o=audioCtx.createOscillator(),g=audioCtx.createGain(),now=audioCtx.currentTime;
- o.type='sine';o.frequency.setValueAtTime(520,now);o.frequency.exponentialRampToValueAtTime(880,now+.28);
- g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.18,now+.03);g.gain.exponentialRampToValueAtTime(.0001,now+.45);
- o.connect(g).connect(audioCtx.destination);o.start(now);o.stop(now+.48);
-}
-function sirenBurst(){
- if(!audioCtx||!soundEnabled)return;
- stopSirenNodes();
- const now=audioCtx.currentTime;
- const o=audioCtx.createOscillator(),g=audioCtx.createGain(),filter=audioCtx.createBiquadFilter();
- o.type='sawtooth';filter.type='lowpass';filter.frequency.value=1800;
- o.frequency.setValueAtTime(650,now);o.frequency.linearRampToValueAtTime(1100,now+.85);o.frequency.linearRampToValueAtTime(650,now+1.7);
- g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(.20,now+.08);g.gain.setValueAtTime(.20,now+1.55);g.gain.linearRampToValueAtTime(.0001,now+1.72);
- o.connect(filter).connect(g).connect(audioCtx.destination);o.start(now);o.stop(now+1.75);
- sirenNodes=[o,g,filter];
-}
-function startSiren(){
- if(!soundEnabled)return;
- clearInterval(sirenTimer);sirenBurst();sirenTimer=setInterval(sirenBurst,1900);
-}
-function stopSirenNodes(){sirenNodes.forEach(n=>{try{n.disconnect()}catch(e){}});sirenNodes=[]}
-function stopSiren(){clearInterval(sirenTimer);sirenTimer=null;stopSirenNodes()}
-function muteSiren(){stopSiren();document.getElementById('alert').classList.remove('show')}
-function closeAlert(){document.getElementById('alert').classList.remove('show');}
-function triggerAlert(){
- if(alertTriggered)return;
- alertTriggered=true;
- document.getElementById('alertScore').textContent=Math.round(current.risk);
- document.getElementById('alertMsg').textContent=current.name+' has crossed the critical flood-risk threshold.';
- document.getElementById('alert').classList.add('show');
- startSiren();
-}
-function startSimulation(){
- if(simTimer)clearInterval(simTimer);
- // User gesture unlocks Web Audio where the browser permits it.
- if(!audioCtx)enableSound();
- simStep=0;alertTriggered=false;stopSiren();document.getElementById('alert').classList.remove('show');
- document.getElementById('cycle').textContent='LIVE SIMULATION';
- simTimer=setInterval(()=>{
-  simStep++;
-  const base=Math.min(96,18+simStep*4.8);
-  current.risk=base;
-  current.rain=18+simStep*7.2;
-  current.drain=Math.min(96,22+simStep*4.0);
-  current.elev=Math.min(75,14+simStep*2.8);
-  current.hist=Math.min(82,18+simStep*3.2);
-  pushHistory(current.risk);setUI();
-  if(current.risk>=75)triggerAlert();
-  if(simStep>=17){clearInterval(simTimer);simTimer=null;document.getElementById('cycle').textContent='CRITICAL EVENT';}
- },900);
-}
-function stopSimulation(){if(simTimer){clearInterval(simTimer);simTimer=null}stopSiren();document.getElementById('cycle').textContent='Idle';}
-setUI();
-</script>
-</body>
-</html>
+const map=L.map('map').setView([28.6139,77.2090],10.7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(map);
+const zones=[];let alertShown=false,sirenTimer=null;
+function factor(lat,lng,seed){let x=Math.sin(lat*91.17+lng*37.71+seed)*43758.5453;return Math.abs(x-Math.floor(x));}
+function color(v){return v>=75?'#e74c3c':v>=55?'#f39c12':v>=35?'#f1c40f':'#2ecc71'}
+function calc(baseElev,baseHist){let rain=+document.getElementById('rain').value,dur=+document.getElementById('duration').value,drain=+document.getElementById('drain').value;let rainF=Math.min(100,rain/120*100),durF=Math.min(100,dur/120*100);return Math.round(.35*(rainF*.7+durF*.3)+.25*(100-drain)+.2*baseElev+.2*baseHist)}
+function buildHeatmap(){zones.forEach(z=>map.removeLayer(z.layer));zones.length=0;for(let lat=28.48;lat<=28.82;lat+=.035){for(let lng=76.96;lng<=77.35;lng+=.035){let elev=Math.round(30+factor(lat,lng,4)*70),hist=Math.round(25+factor(lat,lng,8)*75),risk=calc(elev,hist);let layer=L.circle([lat,lng],{radius:2200,stroke:false,fillColor:color(risk),fillOpacity:.27}).addTo(map);layer.bindPopup(`<b>Modeled zone</b><br>Risk: ${risk}/100<br>Elevation vulnerability: ${elev}/100<br>Historical tendency: ${hist}/100`);zones.push({layer,elev,hist})}}}
+function update(){document.getElementById('rainVal').textContent=document.getElementById('rain').value;document.getElementById('durVal').textContent=document.getElementById('duration').value;document.getElementById('drainVal').textContent=document.getElementById('drain').value;let score=calc(65,60);document.getElementById('score').textContent=score+'/100';let level=score>=75?'CRITICAL':score>=55?'HIGH RISK':score>=35?'WATCH':'SAFE';document.getElementById('level').textContent=level;document.getElementById('riskBox').style.background=color(score)+'22';document.getElementById('response').textContent=score>=75?'Activate emergency response: warn citizens, identify shelters, close vulnerable roads and coordinate emergency services.':score>=55?'Prepare for localized flooding: monitor low-lying roads, drains and underpasses.':score>=35?'Continue monitoring rainfall and drainage conditions; issue precautionary advisories if conditions worsen.':'Low modeled risk under the selected scenario. Continue routine monitoring.';buildHeatmap();if(score>=75&&!alertShown){showAlert(score)}}
+function simulate(){alertShown=false;let r=0;const target=+document.getElementById('rain').value;let timer=setInterval(()=>{r+=5;document.getElementById('rain').value=Math.min(target,r);update();if(r>=target)clearInterval(timer)},80)}
+function resetScenario(){document.getElementById('rain').value=40;document.getElementById('duration').value=45;document.getElementById('drain').value=80;alertShown=false;document.getElementById('alert').style.display='none';update()}
+function showAlert(score){alertShown=true;document.getElementById('alertText').textContent='Modeled Delhi flood risk is '+score+'/100. This is a simulated prototype alert.';document.getElementById('alert').style.display='flex';playSiren()}
+function acknowledge(){document.getElementById('alert').style.display='none';stopSiren()}
+function muteSiren(){stopSiren()}
+function playSiren(){stopSiren();try{const ctx=new (window.AudioContext||window.webkitAudioContext)();let on=true;function beep(){if(!on)return;let o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=720;g.gain.value=.045;o.connect(g);g.connect(ctx.destination);o.start();setTimeout(()=>{o.frequency.value=420},180);setTimeout(()=>{o.stop()},360)}beep();sirenTimer=setInterval(beep,500);window._fctx=ctx;window._sirenOn=()=>{on=false;clearInterval(sirenTimer);ctx.close()}}catch(e){}}
+function stopSiren(){if(window._sirenOn)window._sirenOn()}
+async function searchPlace(){let q=document.getElementById('search').value.trim();if(!q)return;try{let res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q='+encodeURIComponent(q+', Delhi, India'),{headers:{'Accept-Language':'en'}});let d=await res.json();if(d[0]){map.setView([+d[0].lat,+d[0].lon],14);L.marker([+d[0].lat,+d[0].lon]).addTo(map).bindPopup('<b>'+d[0].display_name+'</b>').openPopup()}}catch(e){alert('Search unavailable right now.')}}
+function resetMap(){map.setView([28.6139,77.2090],10.7)}
+const legend=L.control({position:'bottomright'});legend.onAdd=()=>{let d=L.DomUtil.create('div','legend');d.innerHTML='<b>Modeled risk</b><br><span class="dot" style="background:#2ecc71"></span>Safe<br><span class="dot" style="background:#f1c40f"></span>Watch<br><span class="dot" style="background:#f39c12"></span>High Risk<br><span class="dot" style="background:#e74c3c"></span>Critical';return d};legend.addTo(map);update();
+</script></body></html>
